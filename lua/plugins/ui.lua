@@ -40,7 +40,26 @@ return {
         show_buffer_close_icons = true,
         show_close_icon = true,
         color_icons = true,
+        offsets = {
+            {
+                filetype = "neo-tree",
+                text_align = "left",
+                separator = true,
+            }
+        }
       },
+    },
+  },
+  {
+    "akinsho/toggleterm.nvim",
+    version = "*",
+    opts = {
+        size = 20,
+        open_mapping = [[<c-\>]],
+        direction = "horizontal",
+    },
+    keys = {
+        { "<leader>t", "<cmd>ToggleTerm<cr>" },
     },
   },
   {

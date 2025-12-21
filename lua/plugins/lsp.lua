@@ -22,7 +22,6 @@ return {
       ensure_installed = { "lua_ls", "ts_ls" },
       handlers = {
         function(server_name)
-          -- THE FIX: Native config for Nvim 0.11+
           if vim.fn.has('nvim-0.11') == 1 then
             vim.lsp.config(server_name, {
               capabilities = capabilities,
