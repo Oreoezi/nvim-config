@@ -19,7 +19,21 @@ return {
 
     require("mason").setup()
     require("mason-lspconfig").setup({
-      ensure_installed = { "lua_ls", "ts_ls" },
+      ensure_installed = {
+        "svelte",
+        "ts_ls",
+        "pyright",
+        "clangd",
+        "neocmake",
+        "jdtls",
+        "rust_analyzer",
+        "yamlls",
+        "taplo",
+        "jsonls",
+        "verible",
+        "hls",
+        "bashls",
+      },
       handlers = {
         function(server_name)
           if vim.fn.has('nvim-0.11') == 1 then
