@@ -6,7 +6,7 @@ return {
       "hrsh7th/cmp-buffer", "hrsh7th/cmp-path",
       "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip",
       "rafamadriz/friendly-snippets",
-	  "hrsh7th/cmp-nvim-lsp"
+      "hrsh7th/cmp-nvim-lsp"
     },
     config = function()
       local cmp = require("cmp")
@@ -28,10 +28,18 @@ return {
           ["<CR>"] = cmp.mapping.confirm({ select = false }),
         }),
         sources = cmp.config.sources({
-          { name = "nvim_lsp" }, { name = "luasnip" },
-          { name = "buffer" }, { name = "path" },
+          { name = "codecompanion", group_index = 1 }, -- High priority for AI suggestions
+          { name = "nvim_lsp", group_index = 2 }, 
+          { name = "luasnip", group_index = 2 },
+          { name = "buffer", group_index = 3 }, 
+          { name = "path", group_index = 3 },
         }),
+        experimental = {
+          ghost_text = {
+            hl_group = "Comment",
+          },
+        },
       })
     end,
-  },
+  }
 }
