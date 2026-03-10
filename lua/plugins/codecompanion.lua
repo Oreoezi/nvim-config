@@ -11,40 +11,96 @@ return {
         dependencies = { "nvim-lua/plenary.nvim" },
         build = "npm install -g mcp-hub@latest",
         config = function()
-          require("mcphub").setup({
-            port = 3000,
-            config = vim.fn.expand("~/mcpservers.json"),
-          })
+          -- Temporarily disabled to prevent the version parsing crash
+          -- require("mcphub").setup({
+          --   port = 3000,
+          --   config = vim.fn.expand("~/mcpservers.json"),
+          -- })
         end,
       },
       "hrsh7th/nvim-cmp",
     },
     config = function()
-      local tools = {
-        ["mcp"] = {
-          callback = function()
-            return require("mcphub.extensions.codecompanion")
-          end,
-          description = "Access tools and resources from MCP servers",
+      -- ... (get_api_key and setup remains mostly the same)
+      require("codecompanion").setup({
+        -- ... (other opts)
+        strategies = {
+          chat = {
+            adapter = "openrouter",
+            -- ...
+          },
         },
-        ["files"] = {
-          callback = "strategies.chat.tools.files",
-          description = "Read and write files",
+        adapters = {
+          http = {
+            openrouter = function()
+              return require("codecompanion.adapters").extend("openai", {
+                env = {
+                  api_key = function()
+                    return get_api_key("OPENROUTER_API_KEY")
+                  end,
+                },
+                url = "https://openrouter.ai/api/v1/chat/completions",
+                headers = {
+                  ["HTTP-Referer"] = "https://github.com/olimorris/codecompanion.nvim",
+                  ["X-Title"] = "CodeCompanion",
+                  ["Authorization"] = "Bearer ${api_key}",
+                },
+                schema = {
+                  model = {
+                    default = "anthropic/claude-3.5-sonnet", -- Changed to a model with better tool support
+                  },
+                },
+              })
+            end,
+            -- ...
+          },
         },
-        ["shell"] = {
-          callback = "strategies.chat.tools.shell",
-          description = "Run shell commands",
-        },
-        ["editor"] = {
-          callback = "strategies.chat.tools.editor",
-          description = "Interact with the Neovim editor",
-        },
-      }
+      })
+      local function get_api_key(var_name)
+        local env_key = os.getenv(var_name)
+        if env_key then
+          return env_key
+        end
+
+        local f = io.open(vim.fn.expand("~/.config/nvim/.env"), "r")
+        if f then
+          for line in f:lines() do
+            local value = line:match("^" .. var_name .. "=(.+)$")
+            if value then
+              f:close()
+              return value
+            end
+          end
+          f:close()
+        end
+        return ""
+      end
 
       require("codecompanion").setup({
         display = {
           action_palette = {
             provider = "telescope",
+          },
+        },
+        opts = {
+          -- This reads your global system prompt from prompts/system.prompt
+          system_prompt = function()
+            local prompt_path = vim.fn.stdpath("config") .. "/prompts/system.prompt"
+            local f = io.open(prompt_path, "r")
+            if f then
+              local content = f:read("*all")
+              f:close()
+              return content
+            end
+            return "You are a helpful programming assistant."
+          end,
+        },
+        prompt_library = {
+          -- This allows you to load custom prompts from your prompts/ folder
+          markdown = {
+            dirs = {
+              vim.fn.stdpath("config") .. "/prompts",
+            },
           },
         },
         strategies = {
@@ -57,35 +113,57 @@ return {
             opts = {
               completion_provider = "cmp",
             },
-            tools = tools,
-          },
-          inline = {
+            tools = {
+              ["mcp"] = {
+                callback = function()
+                  local ok, mcphub = pcall(require, "mcphub.extensions.codecompanion")
+                  if ok then
+                    return mcphub
+                  end
+                end,
+                description = "Access tools and resources from MCP servers",
+              },
+              ["web_search"] = {
+                callback = "strategies.chat.tools.web_search",
+                description = "Search the web for information",
+                opts = {
+                  adapter = "tavily",
+                },
+              },
+              ["files"] = { enabled = true },
+              ["cmd_runner"] = { enabled = true },
+              ["editor"] = { enabled = true },
+            },
+            slash_commands = {
+              ["search"] = {
+                callback = "codecompanion.strategies.chat.slash_commands.search",
+                description = "Search the web for information",
+                opts = {
+                  adapter = "tavily",
+                },
+              },
+            },
+            },
+            inline = {
             adapter = "openrouter",
-          },
-        },
-        adapters = {
-          http = {
+            },
+            },
+            adapters = {
+            tavily = function()
+            return require("codecompanion.adapters").extend("tavily", {
+              env = {
+                api_key = function()
+                  return get_api_key("TAVILY_API_KEY")
+                end,
+              },
+            })
+            end,
+            http = {
             openrouter = function()
               return require("codecompanion.adapters").extend("openai", {
                 env = {
                   api_key = function()
-                    local env_key = os.getenv("OPENROUTER_API_KEY")
-                    if env_key then
-                      return env_key
-                    end
-
-                    local f = io.open(vim.fn.expand("~/.config/nvim/.env"), "r")
-                    if f then
-                      for line in f:lines() do
-                        local value = line:match("^OPENROUTER_API_KEY=(.+)$")
-                        if value then
-                          f:close()
-                          return value
-                        end
-                      end
-                      f:close()
-                    end
-                    return ""
+                    return get_api_key("OPENROUTER_API_KEY")
                   end,
                 },
                 url = "https://openrouter.ai/api/v1/chat/completions",
@@ -101,12 +179,11 @@ return {
                 },
               })
             end,
-          },
-        },
-      })
+            },
+            },                })
 
-      -- Expand 'cc' into 'CodeCompanion' in the command line
-      vim.cmd([[cabbrev cc CodeCompanion]])
+                -- Expand 'cc' into 'CodeCompanion' in the command line
+                vim.cmd([[cabbrev cc CodeCompanion]])
 
       -- Keymaps
       vim.keymap.set({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "Toggle CodeCompanion Chat" })
