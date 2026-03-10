@@ -21,48 +21,14 @@ return {
       "hrsh7th/nvim-cmp",
     },
     config = function()
-      -- ... (get_api_key and setup remains mostly the same)
-      require("codecompanion").setup({
-        -- ... (other opts)
-        strategies = {
-          chat = {
-            adapter = "openrouter",
-            -- ...
-          },
-        },
-        adapters = {
-          http = {
-            openrouter = function()
-              return require("codecompanion.adapters").extend("openai", {
-                env = {
-                  api_key = function()
-                    return get_api_key("OPENROUTER_API_KEY")
-                  end,
-                },
-                url = "https://openrouter.ai/api/v1/chat/completions",
-                headers = {
-                  ["HTTP-Referer"] = "https://github.com/olimorris/codecompanion.nvim",
-                  ["X-Title"] = "CodeCompanion",
-                  ["Authorization"] = "Bearer ${api_key}",
-                },
-                schema = {
-                  model = {
-                    default = "anthropic/claude-3.5-sonnet", -- Changed to a model with better tool support
-                  },
-                },
-              })
-            end,
-            -- ...
-          },
-        },
-      })
+      -- Helper: read API key from env or .env file
       local function get_api_key(var_name)
         local env_key = os.getenv(var_name)
         if env_key then
           return env_key
         end
 
-        local f = io.open(vim.fn.expand("~/.config/nvim/.env"), "r")
+        local f = io.open(vim.fn.stdpath("config") .. "/.env", "r")
         if f then
           for line in f:lines() do
             local value = line:match("^" .. var_name .. "=(.+)$")
@@ -83,7 +49,6 @@ return {
           },
         },
         opts = {
-          -- This reads your global system prompt from prompts/system.prompt
           system_prompt = function()
             local prompt_path = vim.fn.stdpath("config") .. "/prompts/system.prompt"
             local f = io.open(prompt_path, "r")
@@ -96,7 +61,6 @@ return {
           end,
         },
         prompt_library = {
-          -- This allows you to load custom prompts from your prompts/ folder
           markdown = {
             dirs = {
               vim.fn.stdpath("config") .. "/prompts",
@@ -124,10 +88,14 @@ return {
                 description = "Access tools and resources from MCP servers",
               },
               ["web_search"] = {
-                callback = "strategies.chat.tools.web_search",
-                description = "Search the web for information",
                 opts = {
                   adapter = "tavily",
+                  opts = {
+                    search_depth = "advanced",
+                    topic = "general",
+                    chunks_per_source = 3,
+                    max_results = 5,
+                  },
                 },
               },
               ["files"] = { enabled = true },
@@ -143,22 +111,22 @@ return {
                 },
               },
             },
-            },
-            inline = {
+          },
+          inline = {
             adapter = "openrouter",
-            },
-            },
-            adapters = {
+          },
+        },
+        adapters = {
+          http = {
             tavily = function()
-            return require("codecompanion.adapters").extend("tavily", {
-              env = {
-                api_key = function()
-                  return get_api_key("TAVILY_API_KEY")
-                end,
-              },
-            })
+              return require("codecompanion.adapters").extend("tavily", {
+                env = {
+                  api_key = function()
+                    return get_api_key("TAVILY_API_KEY")
+                  end,
+                },
+              })
             end,
-            http = {
             openrouter = function()
               return require("codecompanion.adapters").extend("openai", {
                 env = {
@@ -179,11 +147,12 @@ return {
                 },
               })
             end,
-            },
-            },                })
+          },
+        },
+      })
 
-                -- Expand 'cc' into 'CodeCompanion' in the command line
-                vim.cmd([[cabbrev cc CodeCompanion]])
+      -- Expand 'cc' into 'CodeCompanion' in the command line
+      vim.cmd([[cabbrev cc CodeCompanion]])
 
       -- Keymaps
       vim.keymap.set({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "Toggle CodeCompanion Chat" })
