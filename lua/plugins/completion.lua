@@ -28,7 +28,7 @@ return {
           ["<CR>"] = cmp.mapping.confirm({ select = false }),
         }),
         sources = cmp.config.sources({
-          { name = "codecompanion", group_index = 1 }, -- High priority for AI suggestions
+          { name = "codecompanion", group_index = 1 },
           { name = "nvim_lsp", group_index = 2 }, 
           { name = "luasnip", group_index = 2 },
           { name = "buffer", group_index = 3 }, 

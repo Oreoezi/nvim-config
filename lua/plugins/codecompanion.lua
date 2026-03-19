@@ -6,22 +6,9 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
       "nvim-telescope/telescope.nvim",
-      {
-        "ravitemer/mcphub.nvim",
-        dependencies = { "nvim-lua/plenary.nvim" },
-        build = "npm install -g mcp-hub@latest",
-        config = function()
-          -- Temporarily disabled to prevent the version parsing crash
-          -- require("mcphub").setup({
-          --   port = 3000,
-          --   config = vim.fn.expand("~/mcpservers.json"),
-          -- })
-        end,
-      },
       "hrsh7th/nvim-cmp",
     },
     config = function()
-      -- Helper: read API key from env or .env file
       local function get_api_key(var_name)
         local env_key = os.getenv(var_name)
         if env_key then
@@ -44,30 +31,22 @@ return {
 
       require("codecompanion").setup({
         display = {
+          chat = {
+            show_reasoning = true,
+            fold_reasoning = false,
+          },
           action_palette = {
             provider = "telescope",
           },
         },
-        opts = {
-          system_prompt = function()
-            local prompt_path = vim.fn.stdpath("config") .. "/prompts/system.prompt"
-            local f = io.open(prompt_path, "r")
-            if f then
-              local content = f:read("*all")
-              f:close()
-              return content
-            end
-            return "You are a helpful programming assistant."
-          end,
-        },
-        prompt_library = {
-          markdown = {
-            dirs = {
-              vim.fn.stdpath("config") .. "/prompts",
-            },
+        -- Add extensions here
+        extensions = {
+          mcp_diagnostics = {
+            callback = "mcp-diagnostics.codecompanion.extension",
+            opts = {},
           },
         },
-        strategies = {
+        interactions = {
           chat = {
             adapter = "openrouter",
             roles = {
@@ -76,8 +55,38 @@ return {
             },
             opts = {
               completion_provider = "cmp",
+              system_prompt = function()
+                local prompt_path = vim.fn.stdpath("config") .. "/prompts/system.prompt"
+                local f = io.open(prompt_path, "r")
+                if f then
+                  local content = f:read("*all")
+                  f:close()
+                  return content
+                end
+                return "You are a helpful programming assistant."
+              end,
             },
             tools = {
+              opts = {
+                default_tools = {
+                  "ask_questions",
+                  "create_file",
+                  "delete_file",
+                  "fetch_webpage",
+                  "file_search",
+                  "get_changed_files",
+                  "get_diagnostics",
+                  "grep_search",
+                  "insert_edit_into_file",
+                  "memory",
+                  "read_file",
+                  "run_command",
+                  "web_search",
+                  "files",
+                  "agent",
+                },
+              },
+              ["lsp"] = { enabled = true },
               ["mcp"] = {
                 callback = function()
                   local ok, mcphub = pcall(require, "mcphub.extensions.codecompanion")
@@ -116,6 +125,13 @@ return {
             adapter = "openrouter",
           },
         },
+        prompt_library = {
+          markdown = {
+            dirs = {
+              vim.fn.stdpath("config") .. "/prompts",
+            },
+          },
+        },
         adapters = {
           http = {
             tavily = function()
@@ -151,13 +167,8 @@ return {
         },
       })
 
-      -- Expand 'cc' into 'CodeCompanion' in the command line
       vim.cmd([[cabbrev cc CodeCompanion]])
 
-      -- Keymaps
-      vim.keymap.set({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionChat Toggle<cr>", { desc = "Toggle CodeCompanion Chat" })
-      vim.keymap.set({ "n", "v" }, "<leader>ca", "<cmd>CodeCompanionActions<cr>", { desc = "CodeCompanion Actions" })
-      vim.keymap.set("v", "ga", "<cmd>CodeCompanionChat Add<cr>", { desc = "Add selection to Chat" })
     end,
   },
 }

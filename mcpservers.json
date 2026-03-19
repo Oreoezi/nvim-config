@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "vectorcode": {
+      "command": "uv",
+      "args": ["tool", "run", "vectorcode", "--mcp-server"],
+      "env": {}
+    }
+  }
+}

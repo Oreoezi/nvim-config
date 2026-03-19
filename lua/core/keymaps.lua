@@ -1,17 +1,31 @@
 vim.g.mapleader = "\\"
 vim.g.maplocalleader = " "
 
-local keymap = vim.keymap
+local keymap = vim.keymap.set
 
-keymap.set("n", "<leader>nh", ":nohl<CR>")
-keymap.set("n", "x", '"_x')
+-- General
+keymap("n", "<leader>nh", "<cmd>nohl<CR>")
+keymap("n", "x", '"_x')
 
-keymap.set("n", "<leader>sv", "<C-w>v")
-keymap.set("n", "<leader>sh", "<C-w>s")
-keymap.set("n", "<leader>se", "<C-w>=")
-keymap.set("n", "<leader>sx", "<cmd>close<CR>")
+-- Splits
+keymap("n", "<leader>sv", "<C-w>v")
+keymap("n", "<leader>sh", "<C-w>s")
+keymap("n", "<leader>se", "<C-w>=")
+keymap("n", "<leader>sx", "<cmd>close<CR>")
 
-keymap.set("n", "<leader>to", "<cmd>tabnew<CR>")
-keymap.set("n", "<leader>tx", "<cmd>tabclose<CR>")
-keymap.set("n", "<leader>tn", "<cmd>tabn<CR>")
-keymap.set("n", "<leader>tp", "<cmd>tabp<CR>")
+-- Tabs
+keymap("n", "<leader>to", "<cmd>tabnew<CR>")
+keymap("n", "<leader>tx", "<cmd>tabclose<CR>")
+keymap("n", "<leader>tn", "<cmd>tabn<CR>")
+keymap("n", "<leader>tp", "<cmd>tabp<CR>")
+
+-- Neotree
+keymap("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle Neotree" })
+
+-- ToggleTerm
+keymap("n", "<leader>t", "<cmd>ToggleTerm<CR>", { desc = "Toggle Terminal" })
+
+-- CodeCompanion
+keymap({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionChat Toggle<CR>", { desc = "Toggle CodeCompanion Chat" })
+keymap({ "n", "v" }, "<leader>ca", "<cmd>CodeCompanionActions<CR>", { desc = "CodeCompanion Actions" })
+keymap("v", "ga", "<cmd>CodeCompanionChat Add<CR>", { desc = "Add selection to Chat" })

@@ -8,9 +8,6 @@ return {
       "nvim-tree/nvim-web-devicons",
       "MunifTanjim/nui.nvim",
     },
-    keys = {
-      { "<leader>e", "<cmd>Neotree toggle<cr>" },
-    },
     opts = {
       close_if_last_window = true,
       filesystem = {
@@ -57,10 +54,7 @@ return {
         size = 20,
         open_mapping = [[<c-\>]],
         direction = "horizontal",
-    },
-    keys = {
-        { "<leader>t", "<cmd>ToggleTerm<cr>" },
-    },
+    }
   },
   {
     "nvim-lualine/lualine.nvim",
