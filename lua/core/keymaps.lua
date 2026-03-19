@@ -19,13 +19,18 @@ keymap("n", "<leader>tx", "<cmd>tabclose<CR>")
 keymap("n", "<leader>tn", "<cmd>tabn<CR>")
 keymap("n", "<leader>tp", "<cmd>tabp<CR>")
 
--- Neotree
+-- NeoTree
 keymap("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle Neotree" })
 
 -- ToggleTerm
 keymap("n", "<leader>t", "<cmd>ToggleTerm<CR>", { desc = "Toggle Terminal" })
 
 -- CodeCompanion
-keymap({ "n", "v" }, "<leader>cc", "<cmd>CodeCompanionChat Toggle<CR>", { desc = "Toggle CodeCompanion Chat" })
+keymap({ "n", "v" }, "<leader>cc", function()
+  vim.cmd("CodeCompanionChat Toggle")
+  vim.defer_fn(function()
+    vim.cmd("60wincmd |")
+  end, 50)
+end, { desc = "Toggle CodeCompanion Chat" })
 keymap({ "n", "v" }, "<leader>ca", "<cmd>CodeCompanionActions<CR>", { desc = "CodeCompanion Actions" })
 keymap("v", "ga", "<cmd>CodeCompanionChat Add<CR>", { desc = "Add selection to Chat" })

@@ -10,6 +10,7 @@ return {
     },
     opts = {
       close_if_last_window = true,
+      open_files_do_not_replace_types = { "terminal", "toggleterm", "codecompanion", "qf", "trouble" },
       filesystem = {
         follow_current_file = { enabled = true },
         use_libuv_file_watcher = true,
@@ -21,7 +22,12 @@ return {
       },
       window = {
         width = 30,
-      }
+      },
+      default_component_configs = {
+        indent = {
+          indent_level = 2,
+        },
+      },
     },
   },
   {
