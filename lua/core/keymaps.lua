@@ -19,10 +19,11 @@ keymap("n", "<leader>tx", "<cmd>tabclose<CR>")
 keymap("n", "<leader>tn", "<cmd>tabn<CR>")
 keymap("n", "<leader>tp", "<cmd>tabp<CR>")
 
--- NeoTree
-keymap("n", "<leader>e", "<cmd>Neotree toggle<CR>", { desc = "Toggle Neotree" })
+-- NeoTree / Edgy
+keymap("n", "<leader>e", function()
+  require("edgy").toggle("left")
+end, { desc = "Toggle Edgy (NeoTree + Aerial)" })
 
--- ToggleTerm
 keymap("n", "<leader>t", "<cmd>ToggleTerm<CR>", { desc = "Toggle Terminal" })
 
 -- CodeCompanion

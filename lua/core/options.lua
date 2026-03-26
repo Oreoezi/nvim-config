@@ -19,3 +19,6 @@ opt.clipboard = "unnamedplus"
 opt.mouse = "a"
 opt.scrolloff = 8
 opt.updatetime = 250
+
+opt.laststatus = 3
+opt.splitkeep = "screen"
