@@ -12,7 +12,9 @@ return {
       local cmp = require("cmp")
       local luasnip = require("luasnip")
       require("luasnip.loaders.from_vscode").lazy_load()
-      
+
+      -- Minuet is loaded in its own plugin config for virtual text only
+
       cmp.setup({
         completion = { completeopt = "menu,menuone,preview,noselect" },
         snippet = {
@@ -29,11 +31,14 @@ return {
         }),
         sources = cmp.config.sources({
           { name = "codecompanion", group_index = 1 },
-          { name = "nvim_lsp", group_index = 2 }, 
+          { name = "nvim_lsp", group_index = 2 },
           { name = "luasnip", group_index = 2 },
           { name = "buffer", group_index = 3 }, 
           { name = "path", group_index = 3 },
         }),
+        performance = {
+          fetching_timeout = 3000,
+        },
         experimental = {
           ghost_text = {
             hl_group = "Comment",

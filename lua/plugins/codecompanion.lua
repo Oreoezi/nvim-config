@@ -2,11 +2,12 @@ return {
   -- CodeCompanion (AI Chat & Agent)
   {
     "olimorris/codecompanion.nvim",
-    dependencies = {
+  dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
       "nvim-telescope/telescope.nvim",
       "hrsh7th/nvim-cmp",
+      "ravitemer/codecompanion-history.nvim",
     },
     config = function()
       local function get_api_key(var_name)
@@ -41,6 +42,34 @@ return {
         },
         -- Add extensions here
         extensions = {
+          history = {
+            enabled = true,
+            opts = {
+              -- Keymap to open history from chat buffer (default: gh)
+              keymap = "gh",
+              -- Keymap to save the current chat manually
+              save_chat_keymap = "sc",
+              -- Save all chats automatically
+              auto_save = true,
+              -- Number of days after which chats are automatically deleted (0 to disable)
+              expiration_days = 0,
+              -- Picker interface
+              picker = "telescope",
+              -- Automatically generate titles for new chats
+              auto_generate_title = true,
+              title_generation_opts = {
+                refresh_every_n_prompts = 0,
+                max_refreshes = 3,
+              },
+              -- Directory path to save the chats
+              dir_to_save = vim.fn.stdpath("data") .. "/codecompanion-history",
+              -- Summary system
+              summary = {
+                create_summary_keymap = "gcs",
+                browse_summaries_keymap = "gbs",
+              },
+            },
+          },
           mcp_diagnostics = {
             callback = "mcp-diagnostics.codecompanion.extension",
             opts = {},
@@ -84,6 +113,7 @@ return {
                   "web_search",
                   "files",
                   "agent",
+                  "lsp"
                 },
               },
               ["lsp"] = { enabled = true },
@@ -158,7 +188,7 @@ return {
                 },
                 schema = {
                   model = {
-                    default = "minimax/minimax-m2.5",
+                    default = "minimax/minimax-m2.7",
                   },
                 },
               })
